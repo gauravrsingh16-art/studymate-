@@ -1,0 +1,4 @@
+project_id = "kflzhyefhieeejpmtjjw"
+
+[functions.studymate-chat]
+verify_jwt = true
