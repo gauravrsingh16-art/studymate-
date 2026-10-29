@@ -31,7 +31,9 @@ export default function PomodoroTimer({ sessionMinutes = 25, breakMinutes = 5 }:
       gain.gain.value = 0.3;
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
-    } catch {}
+    } catch {
+      // Audio playback may fail if user hasn't interacted with page yet
+    }
   }, []);
 
   useEffect(() => {

@@ -1,3 +1,10 @@
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+  serve(handler: (request: Request) => Promise<Response> | Response): void;
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -123,9 +130,9 @@ function isRateLimited(userId: string): boolean {
   recent.push(now);
   requestTimesByUser.set(userId, recent);
   if (requestTimesByUser.size > 1000) {
-    for (const [id, times] of requestTimesByUser) {
+    requestTimesByUser.forEach((times, id) => {
       if (times.every((time) => now - time >= rateLimitWindowMs)) requestTimesByUser.delete(id);
-    }
+    });
   }
   return false;
 }
@@ -154,7 +161,8 @@ function formatGeminiContents(messages: ChatMessage[]) {
 
 function safeProviderMessage(value: unknown, apiKey: string): string {
   if (typeof value !== "string") return "";
-  return value.replaceAll(apiKey, "[redacted]").replace(/[\r\n\t]+/g, " ").slice(0, 300);
+  const sanitized = apiKey ? value.split(apiKey).join("[redacted]") : value;
+  return sanitized.replace(/[\r\n\t]+/g, " ").slice(0, 300);
 }
 
 function classifyProviderError(status: number, providerMessage: string) {
@@ -230,7 +238,7 @@ Deno.serve(async (request) => {
 
   const rawModel = Deno.env.get("GEMINI_MODEL");
   const cleanModel = rawModel ? rawModel.replace(/^["']+|["']+$/g, "").trim() : "";
-  const model = (cleanModel || "gemini-flash-lite-latest").replace(/^models\//, "");
+  const model = (cleanModel || "gemini-1.5-flash").replace(/^models\//, "");
 
   const chatMessages = body.messages as ChatMessage[];
   const contents = formatGeminiContents(chatMessages);
@@ -241,7 +249,7 @@ Deno.serve(async (request) => {
   const maxOutputTokens = determineMaxTokens(chatMessages, (body as { maxTokens?: unknown }).maxTokens);
   const wantsStream = (body as { stream?: unknown }).stream === true;
   let activeModel = model;
-  const modelsToTry = [...new Set([activeModel, "gemini-flash-lite-latest", "gemini-flash-latest"])];
+  const modelsToTry = Array.from(new Set([activeModel, "gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"]));
 
   if (wantsStream) {
     for (const candidateModel of modelsToTry) {

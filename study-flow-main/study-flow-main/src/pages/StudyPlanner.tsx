@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStudySessions, useAddSession, useUpdateSession, useDeleteSession } from "@/hooks/useData";
 import { useToast } from "@/hooks/use-toast";
+import type { Tables } from "@/integrations/supabase/types";
+
+type StudySession = Tables<"study_sessions">["Row"];
 
 const emptyTask = { subject: "", time_start: "09:00", time_end: "10:30", priority: "Medium", notes: "" };
 
@@ -40,13 +43,13 @@ export default function StudyPlanner() {
     setShowModal(true);
   };
 
-  const openEdit = (task: any) => {
+  const openEdit = (task: StudySession) => {
     setEditingId(task.id);
     setFormTask({ subject: task.subject, time_start: task.time_start.slice(0, 5), time_end: task.time_end.slice(0, 5), priority: task.priority, notes: task.notes });
     setShowModal(true);
   };
 
-  const duplicateSession = (task: any) => {
+  const duplicateSession = (task: StudySession) => {
     addSession.mutate({ subject: task.subject, time_start: task.time_start.slice(0, 5), time_end: task.time_end.slice(0, 5), priority: task.priority, notes: task.notes, date: dateStr });
     toast({ title: "Duplicated", description: `"${task.subject}" duplicated.` });
   };

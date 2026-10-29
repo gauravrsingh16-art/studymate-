@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGoals, useAddGoal, useUpdateGoal, useDeleteGoal, useStudySessions, useHabits, useHabitCompletions, useMilestones, useAddMilestone, useToggleMilestone, useDeleteMilestone } from "@/hooks/useData";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Goal = Tables<"goals">["Row"];
 
 function MilestonesList({ goalId }: { goalId: string }) {
   const { data: milestones = [] } = useMilestones(goalId);
@@ -45,7 +48,7 @@ function MilestonesList({ goalId }: { goalId: string }) {
   );
 }
 
-function GoalCard({ goal, delay, onUpdate, onDelete }: { goal: any; delay: number; onUpdate: (id: string, current: number) => void; onDelete: (id: string) => void }) {
+function GoalCard({ goal, delay, onUpdate, onDelete }: { goal: Goal; delay: number; onUpdate: (id: string, current: number) => void; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const pct = goal.target > 0 ? Math.round((Number(goal.current) / Number(goal.target)) * 100) : 0;
 

@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHabits, useAddHabit, useUpdateHabit, useDeleteHabit, useHabitCompletions, useToggleHabitCompletion } from "@/hooks/useData";
 import { useToast } from "@/hooks/use-toast";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Habit = Tables<"habits">["Row"];
 
 const weekDayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const CATEGORIES = ["Health", "Learning", "Fitness", "Mindfulness", "Productivity", "Other"];
@@ -59,7 +62,7 @@ export default function HabitTracker() {
     setShowModal(true);
   };
 
-  const openEdit = (habit: any) => {
+  const openEdit = (habit: Habit) => {
     setEditingId(habit.id);
     setForm({ name: habit.name, category: habit.category || "", notes: habit.notes || "" });
     setShowModal(true);

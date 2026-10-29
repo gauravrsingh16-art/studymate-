@@ -58,7 +58,9 @@ export default function Alarms() {
           gain.gain.value = 0.4;
           osc.start();
           osc.stop(ctx.currentTime + 1);
-        } catch {}
+        } catch {
+          // Audio playback may fail if user hasn't interacted with page yet
+        }
 
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification("⏰ Alarm", { body: alarm.label || `Alarm at ${alarmTime}` });
